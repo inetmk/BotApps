@@ -42,6 +42,8 @@ namespace ChatBot
         private static async Task<Activity> Response(Activity activity)
         {
             var botreply = activity.CreateReply("");
+            if (activity.Type == ActivityTypes.Message)
+            {
             
             var luiresponse = await LuisServiceClass.GetResponse(activity.Text);
 
@@ -76,39 +78,42 @@ namespace ChatBot
                         botreply = activity.CreateReply("Not sure what information you are looking for " + person + ".");
                 }
                 else
-                    botreply = activity.CreateReply("I did not understand which person you want the information.");
+                    botreply = activity.CreateReply("please specify name of the person for contact information.");
+            }
+
             }
             return botreply;
+
         }
-        private static async Task<Activity> HandleSystemMessage(Activity message)
+        private static async Task<Activity> HandleSystemMessage(Activity activity)
         {
-            if (message.Type == ActivityTypes.DeleteUserData)
+            if (activity.Type == ActivityTypes.DeleteUserData)
             {
                 // Implement user deletion here
                 // If we handle user deletion, return a real message
             }
-            else if (message.Type == ActivityTypes.ConversationUpdate)
+            else if (activity.Type == ActivityTypes.ConversationUpdate)
             {
                 // Handle conversation state changes, like members being added and removed
                 // Use Activity.MembersAdded and Activity.MembersRemoved and Activity.Action for info
                 // Not available in all channels
             }
-            else if (message.Type == ActivityTypes.ContactRelationUpdate)
+            else if (activity.Type == ActivityTypes.ContactRelationUpdate)
             {
                 // Handle add/remove from contact lists
                 // Activity.From + Activity.Action represent what happened
             }
-            else if (message.Type == ActivityTypes.Typing)
+            else if (activity.Type == ActivityTypes.Typing)
             {
                 // Handle knowing that the user is typing
-                message.CreateReply("typing...");
+                activity.CreateReply("typing...");
             }
-            else if (message.Type == ActivityTypes.Ping)
+            else if (activity.Type == ActivityTypes.Ping)
             {
-                message.CreateReply("Pong!");
+                activity.CreateReply("Pong!");
             }
-            ConnectorClient connector = new ConnectorClient(new Uri(message.ServiceUrl));
-            Activity reply = await Response(message);
+            ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
+            Activity reply = await Response(activity);
             await connector.Conversations.ReplyToActivityAsync(reply);
 
 
